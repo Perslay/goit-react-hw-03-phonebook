@@ -7,16 +7,23 @@ import { Filter } from './Filter';
 
 export class App extends Component {
   state = {
-    contacts: [
-      { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-      { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-      { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-      { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-    ],
+    contacts: [],
     filter: '',
     name: '',
     number: '',
   };
+
+  componentDidMount() {
+    // get from local storage
+    const savedContacts = localStorage.getItem('contacts');
+    const parsedContacts = JSON.parse(savedContacts);
+    this.setState({ contacts: parsedContacts || [] });
+  }
+
+  componentDidUpdate() {
+    // remove from or add to local storage
+    localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+  }
 
   handleName = evt => {
     this.setState({ name: evt.target.value });
@@ -34,27 +41,6 @@ export class App extends Component {
     event.preventDefault();
 
     const form = event.currentTarget;
-    // const newName = form.elements.name.value;
-    // const newNumber = form.elements.number.value;
-
-    // const nameExists = this.state.contacts.some(
-    //   contact => contact.name === newName
-    // );
-
-    // if (nameExists) {
-    //   alert(newName + ' is already in contacts.');
-    // } else {
-    //   this.setState(prevState => ({
-    //     contacts: [
-    //       ...prevState.contacts,
-    //       {
-    //         name: newName,
-    //         number: newNumber,
-    //         id: nanoid(),
-    //       },
-    //     ],
-    //   }));
-    // }
 
     const newName = this.state.name;
     const newNumber = this.state.number;
@@ -82,9 +68,12 @@ export class App extends Component {
   };
 
   deleteContact = id => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== id),
-    }));
+    this.setState(prevState => {
+      const updatedContacts = prevState.contacts.filter(
+        contact => contact.id !== id
+      );
+      return { contacts: updatedContacts };
+    });
   };
 
   render() {
